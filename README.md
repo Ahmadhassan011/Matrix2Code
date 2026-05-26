@@ -108,7 +108,7 @@ Source (.matrix)
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/Ahmadhassan011/Matrix2Code.git
 cd Matrix2Code
 
 # Build the compiler
