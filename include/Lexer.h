@@ -13,6 +13,7 @@ enum class TokenType {
     PLUS,
     MINUS,
     STAR,
+    SLASH,
     ASSIGN,
     LBRACKET,
     RBRACKET,
@@ -21,6 +22,8 @@ enum class TokenType {
     COMMA,
     MATRIX,
     PRINT,
+    TRANSPOSE,
+    DET,
     NEWLINE,
     END_OF_FILE,
     INVALID

@@ -1,0 +1,21 @@
+# Solve 2x2 system using Cramer's Rule:
+#   2x + 3y = 7
+#   4x - 5y = 2
+#
+# det(A) = 2*(-5) - 3*4 = -22
+matrix A = [[2,3],[4,-5]]
+detA = det(A)
+
+# Replace column 0 with constants for x
+matrix A1 = [[7,3],[2,-5]]
+detA1 = det(A1)
+
+# Replace column 1 with constants for y
+matrix A2 = [[2,7],[4,2]]
+detA2 = det(A2)
+
+x = detA1 / detA
+y = detA2 / detA
+
+print x
+print y

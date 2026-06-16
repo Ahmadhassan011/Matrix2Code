@@ -32,7 +32,7 @@ private:
 
 class BinaryOp : public ASTNode {
 public:
-    enum Op { ADD, SUB, MUL };
+    enum Op { ADD, SUB, MUL, DIV };
 
     BinaryOp(Op op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right, int line)
         : m_op(op), m_left(std::move(left)), m_right(std::move(right)), m_line(line) {}
@@ -103,6 +103,34 @@ public:
 
 private:
     std::string m_name;
+    std::unique_ptr<ASTNode> m_expr;
+    int m_line;
+};
+
+class TransposeExpr : public ASTNode {
+public:
+    TransposeExpr(std::unique_ptr<ASTNode> expr, int line)
+        : m_expr(std::move(expr)), m_line(line) {}
+
+    const ASTNode* expr() const { return m_expr.get(); }
+    int line() const { return m_line; }
+    void print(int indent = 0) const override;
+
+private:
+    std::unique_ptr<ASTNode> m_expr;
+    int m_line;
+};
+
+class DetExpr : public ASTNode {
+public:
+    DetExpr(std::unique_ptr<ASTNode> expr, int line)
+        : m_expr(std::move(expr)), m_line(line) {}
+
+    const ASTNode* expr() const { return m_expr.get(); }
+    int line() const { return m_line; }
+    void print(int indent = 0) const override;
+
+private:
     std::unique_ptr<ASTNode> m_expr;
     int m_line;
 };

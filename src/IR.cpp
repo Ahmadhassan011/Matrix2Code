@@ -45,6 +45,17 @@ void IRProgram::dump() const {
                 if (instr.dimM > 0) std::cerr << "  [matrix " << instr.dimM << "x" << instr.dimN << "]";
                 std::cerr << "\n";
                 break;
+            case IROp::DIV:
+                std::cerr << "  " << instr.dst << " = " << instr.src1
+                          << " / " << instr.src2 << "\n";
+                break;
+            case IROp::TRANSPOSE:
+                std::cerr << "  " << instr.dst << " = TRANSPOSE " << instr.src1
+                          << " [" << instr.dimM << "x" << instr.dimN << "]\n";
+                break;
+            case IROp::DET:
+                std::cerr << "  " << instr.dst << " = DET " << instr.src1 << "\n";
+                break;
             case IROp::PRINT:
                 std::cerr << "  PRINT " << instr.src1 << "\n";
                 break;

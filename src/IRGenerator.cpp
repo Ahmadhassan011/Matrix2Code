@@ -92,10 +92,28 @@ IRGenerator::ExprResult IRGenerator::translateExpr(
             case BinaryOp::ADD: op = IROp::ADD; break;
             case BinaryOp::SUB: op = IROp::SUB; break;
             case BinaryOp::MUL: op = IROp::MUL; break;
+            case BinaryOp::DIV: op = IROp::DIV; break;
         }
 
         m_program.emit(op, dst, left.ref, right.ref, resultRows, resultCols);
         return {dst, resultType, resultRows, resultCols};
+    }
+
+    if (auto* te = dynamic_cast<const TransposeExpr*>(&node)) {
+        ExprResult inner = translateExpr(*te->expr());
+        SymbolInfo& sym = m_symTable.lookup(inner.ref);
+        std::string dst = dstHint.empty() ? m_program.newTemp() : dstHint;
+        m_program.emit(IROp::MATRIX_DECL, dst, "", "", sym.matrixCols, sym.matrixRows);
+        m_program.emit(IROp::TRANSPOSE, dst, inner.ref, "", sym.matrixCols, sym.matrixRows);
+        return {dst, VarType::MATRIX, sym.matrixCols, sym.matrixRows};
+    }
+
+    if (auto* de = dynamic_cast<const DetExpr*>(&node)) {
+        ExprResult inner = translateExpr(*de->expr());
+        std::string dst = dstHint.empty() ? m_program.newTemp() : dstHint;
+        m_program.emit(IROp::SCALAR_DECL, dst);
+        m_program.emit(IROp::DET, dst, inner.ref, "", inner.rows, inner.rows);
+        return {dst, VarType::SCALAR, 0, 0};
     }
 
     if (auto* mat = dynamic_cast<const MatrixLiteral*>(&node)) {

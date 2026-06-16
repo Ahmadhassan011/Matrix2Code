@@ -10,6 +10,9 @@ enum class IROp {
     ADD,
     SUB,
     MUL,
+    DIV,
+    TRANSPOSE,
+    DET,
     PRINT
 };
 

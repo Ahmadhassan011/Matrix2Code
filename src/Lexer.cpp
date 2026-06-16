@@ -3,6 +3,8 @@
 const std::unordered_map<std::string, TokenType> Lexer::s_keywords = {
     {"matrix", TokenType::MATRIX},
     {"print", TokenType::PRINT},
+    {"transpose", TokenType::TRANSPOSE},
+    {"det", TokenType::DET},
 };
 
 Lexer::Lexer(std::string source)
@@ -117,6 +119,7 @@ Token Lexer::nextToken() {
     if (ch == '+') { advance(); return makeToken(TokenType::PLUS, '+'); }
     if (ch == '-') { advance(); return makeToken(TokenType::MINUS, '-'); }
     if (ch == '*') { advance(); return makeToken(TokenType::STAR, '*'); }
+    if (ch == '/') { advance(); return makeToken(TokenType::SLASH, '/'); }
     if (ch == '=') { advance(); return makeToken(TokenType::ASSIGN, '='); }
     if (ch == '[') { advance(); return makeToken(TokenType::LBRACKET, '['); }
     if (ch == ']') { advance(); return makeToken(TokenType::RBRACKET, ']'); }

@@ -150,6 +150,49 @@ ExprTypeInfo SemanticAnalyzer::analyzeExpr(const ASTNode& node) {
                 binop->line(), 1
             );
         }
+
+        if (binop->op() == BinaryOp::DIV) {
+            if (left.type == VarType::SCALAR && right.type == VarType::SCALAR) {
+                if (right.isConstant && right.constValue == 0) {
+                    throw SemanticError("division by zero", binop->line(), 1);
+                }
+                int val = (right.isConstant && right.constValue != 0)
+                    ? left.constValue / right.constValue : 0;
+                return {VarType::SCALAR, 0, 0,
+                        left.isConstant && right.isConstant, val};
+            }
+            throw SemanticError(
+                "cannot divide " +
+                std::string(left.type == VarType::SCALAR ? "scalar" : "matrix") +
+                " and " +
+                std::string(right.type == VarType::SCALAR ? "scalar" : "matrix"),
+                binop->line(), 1
+            );
+        }
+    }
+
+    if (auto* te = dynamic_cast<const TransposeExpr*>(&node)) {
+        ExprTypeInfo inner = analyzeExpr(*te->expr());
+        if (inner.type != VarType::MATRIX) {
+            throw SemanticError("cannot transpose a scalar", te->line(), 1);
+        }
+        return {VarType::MATRIX, inner.cols, inner.rows, false, 0};
+    }
+
+    if (auto* de = dynamic_cast<const DetExpr*>(&node)) {
+        ExprTypeInfo inner = analyzeExpr(*de->expr());
+        if (inner.type != VarType::MATRIX) {
+            throw SemanticError("det requires a matrix argument", de->line(), 1);
+        }
+        if (inner.rows != inner.cols) {
+            throw SemanticError(
+                "det requires a square matrix, got " +
+                std::to_string(inner.rows) + "x" +
+                std::to_string(inner.cols),
+                de->line(), 1
+            );
+        }
+        return {VarType::SCALAR, 0, 0, false, 0};
     }
 
     if (auto* mat = dynamic_cast<const MatrixLiteral*>(&node)) {

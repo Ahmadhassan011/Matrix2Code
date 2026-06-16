@@ -164,6 +164,36 @@ std::string CodeGenerator::generate() const {
                 break;
             }
 
+            case IROp::DIV: {
+                emitLine("    " + instr.dst + " = " + instr.src1 + " / " + instr.src2 + ";");
+                break;
+            }
+
+            case IROp::TRANSPOSE: {
+                auto dstInfo = varMap[instr.dst];
+                emitLine("    for(int i=0; i<" + std::to_string(dstInfo.rows) + "; i++)");
+                emitLine("        for(int j=0; j<" + std::to_string(dstInfo.cols) + "; j++)");
+                emitLine("            " + instr.dst + "[i][j] = " +
+                         instr.src1 + "[j][i];");
+                break;
+            }
+
+            case IROp::DET: {
+                int n = instr.dimM;
+                if (n == 2) {
+                    emitLine("    " + instr.dst + " = " + instr.src1 + "[0][0] * " + instr.src1 + "[1][1] - "
+                             + instr.src1 + "[0][1] * " + instr.src1 + "[1][0];");
+                } else if (n == 3) {
+                    emitLine("    " + instr.dst + " = " + instr.src1 + "[0][0]*(" + instr.src1 + "[1][1]*" + instr.src1 + "[2][2] - " + instr.src1 + "[1][2]*" + instr.src1 + "[2][1])"
+                             " - " + instr.src1 + "[0][1]*(" + instr.src1 + "[1][0]*" + instr.src1 + "[2][2] - " + instr.src1 + "[1][2]*" + instr.src1 + "[2][0])"
+                             " + " + instr.src1 + "[0][2]*(" + instr.src1 + "[1][0]*" + instr.src1 + "[2][1] - " + instr.src1 + "[1][1]*" + instr.src1 + "[2][0]);");
+                } else {
+                    emitLine("    fprintf(stderr, \"Error: det() not supported for %dx%d matrices at runtime\\n\");");
+                    emitLine("    return 1;");
+                }
+                break;
+            }
+
             case IROp::PRINT: {
                 auto info = varMap[instr.src1];
                 if (info.isMatrix) {

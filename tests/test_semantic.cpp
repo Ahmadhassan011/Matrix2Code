@@ -79,3 +79,53 @@ TEST_CASE("SemanticAnalyzer - invalid matrix literal too small") {
     SemanticAnalyzer analyzer(symTable);
     CHECK_NOTHROW(analyzer.analyze(*program));
 }
+
+TEST_CASE("SemanticAnalyzer - det of square matrix") {
+    auto program = parse("matrix A = [[1,2],[3,4]]\nd = det(A)");
+    SymbolTable symTable;
+    SemanticAnalyzer analyzer(symTable);
+    CHECK_NOTHROW(analyzer.analyze(*program));
+    auto info = symTable.lookup("d");
+    CHECK(info.type == VarType::SCALAR);
+}
+
+TEST_CASE("SemanticAnalyzer - det of non-square matrix fails") {
+    auto program = parse("matrix A = [[1,2,3],[4,5,6]]\nd = det(A)");
+    SymbolTable symTable;
+    SemanticAnalyzer analyzer(symTable);
+    CHECK_THROWS_AS(analyzer.analyze(*program), SemanticError);
+}
+
+TEST_CASE("SemanticAnalyzer - det of scalar fails") {
+    auto program = parse("x = 5\nd = det(x)");
+    SymbolTable symTable;
+    SemanticAnalyzer analyzer(symTable);
+    CHECK_THROWS_AS(analyzer.analyze(*program), SemanticError);
+}
+
+TEST_CASE("SemanticAnalyzer - transpose of matrix") {
+    auto program = parse("matrix A = [[1,2,3],[4,5,6]]\nB = transpose(A)");
+    SymbolTable symTable;
+    SemanticAnalyzer analyzer(symTable);
+    CHECK_NOTHROW(analyzer.analyze(*program));
+    auto info = symTable.lookup("B");
+    CHECK(info.type == VarType::MATRIX);
+    CHECK(info.matrixRows == 3);
+    CHECK(info.matrixCols == 2);
+}
+
+TEST_CASE("SemanticAnalyzer - transpose of scalar fails") {
+    auto program = parse("x = 5\ny = transpose(x)");
+    SymbolTable symTable;
+    SemanticAnalyzer analyzer(symTable);
+    CHECK_THROWS_AS(analyzer.analyze(*program), SemanticError);
+}
+
+TEST_CASE("SemanticAnalyzer - division of scalars") {
+    auto program = parse("x = 10 / 3");
+    SymbolTable symTable;
+    SemanticAnalyzer analyzer(symTable);
+    CHECK_NOTHROW(analyzer.analyze(*program));
+    auto info = symTable.lookup("x");
+    CHECK(info.type == VarType::SCALAR);
+}

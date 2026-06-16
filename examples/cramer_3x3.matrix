@@ -1,0 +1,28 @@
+# Solve 3x3 system using Cramer's Rule:
+#    x +  y +  z =  6
+#   2x + 3y -  z =  5
+#   3x -  y + 2z =  7
+#
+# det(A) = -13
+matrix A = [[1,1,1],[2,3,-1],[3,-1,2]]
+detA = det(A)
+
+# Replace column 0 with constants for x
+matrix A1 = [[6,1,1],[5,3,-1],[7,-1,2]]
+detA1 = det(A1)
+
+# Replace column 1 with constants for y
+matrix A2 = [[1,6,1],[2,5,-1],[3,7,2]]
+detA2 = det(A2)
+
+# Replace column 2 with constants for z
+matrix A3 = [[1,1,6],[2,3,5],[3,-1,7]]
+detA3 = det(A3)
+
+x = detA1 / detA
+y = detA2 / detA
+z = detA3 / detA
+
+print x
+print y
+print z

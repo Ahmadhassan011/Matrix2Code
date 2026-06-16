@@ -53,12 +53,14 @@ int main() {
 ## Features
 
 - **Full compiler pipeline** — hand-written Lexer, recursive-descent Parser, AST, Semantic Analysis, IR Generation, Optimization, and C Code Generation
-- **Matrix operations** — addition, subtraction, and matrix multiplication with automatic dimension checking
+- **Matrix operations** — addition, subtraction, multiplication, transpose, and determinant with automatic dimension checking
 - **Scalar-matrix scaling** — expressions like `2 * A` scale every element
+- **Integer division** — supports `/` for scalar integer division
 - **Constant folding** — compile-time evaluation of constant subexpressions (`3 + 2 * 5` becomes `13`)
 - **Semantic validation** — catches type mismatches, undeclared variables, and incompatible matrix dimensions with clear error messages
 - **One-step execution** — compiles the generated C with GCC and runs it automatically
 - **Zero external parser tools** — hand-written C++, no Flex/Bison dependency
+- **Cramer's Rule ready** — includes `det()` and `transpose()` for solving linear systems (see `examples/cramer_2x2.matrix`)
 
 ## How it works
 
@@ -128,6 +130,8 @@ EOF
 
 > [!TIP]
 > Use `--dump-ast` and `--dump-ir` to inspect the compiler's internal representations as you develop your programs.
+>
+> Try the Cramer's Rule examples: `./build/compiler examples/cramer_2x2.matrix` or `./build/compiler examples/cramer_3x3.matrix`
 
 ## Language guide
 
@@ -156,6 +160,9 @@ EOF
 | `s * M` | Scalar scaling (every element) | Any matrix |
 | `s * t` | Scalar multiplication | N/A |
 | `s + t` | Scalar addition | N/A |
+| `s / t` | Integer division | N/A (scalars only) |
+| `transpose(A)` | Matrix transpose (swap rows/cols) | (M×N) → (N×M) |
+| `det(A)` | Matrix determinant | Square matrix only, returns scalar |
 
 ### Examples
 
@@ -175,6 +182,30 @@ print y
 matrix A = [[1,2],[3,4]]
 B = 2 * A
 print B
+
+# Matrix transpose
+matrix A = [[1,2,3],[4,5,6]]
+B = transpose(A)
+print B
+
+# Matrix determinant
+matrix A = [[1,2],[3,4]]
+d = det(A)
+print d
+
+# Cramer's Rule — solve 2x2 linear system
+#   2x + 3y = 7
+#   4x - 5y = 2
+matrix A = [[2,3],[4,-5]]
+matrix A1 = [[7,3],[2,-5]]
+matrix A2 = [[2,7],[4,2]]
+detA = det(A)
+detA1 = det(A1)
+detA2 = det(A2)
+x = detA1 / detA
+y = detA2 / detA
+print x
+print y
 ```
 
 ### Error handling
@@ -186,6 +217,9 @@ Error on line 5: 'Z' undeclared
 Error on line 3: cannot add scalar and matrix
 Error on line 4: matrix dims (2x3) and (3x3) incompatible for addition
 Error on line 2: matrix literal has inconsistent row lengths (row 0: 3 cols, row 1: 2 cols)
+Error on line 3: det requires a square matrix, got 2x3
+Error on line 2: cannot transpose a scalar
+Error on line 1: division by zero
 ```
 
 ## CLI

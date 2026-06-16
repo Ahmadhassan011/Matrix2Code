@@ -128,8 +128,10 @@ std::unique_ptr<MatrixLiteral> Parser::parseMatrixLiteral() {
         int firstColLine = m_current.line;
 
         do {
+            bool negative = match(TokenType::MINUS);
             Token num = expect(TokenType::NUMBER);
-            row.push_back(std::stoi(num.lexeme));
+            int val = std::stoi(num.lexeme);
+            row.push_back(negative ? -val : val);
         } while (match(TokenType::COMMA));
 
         expect(TokenType::RBRACKET);
@@ -178,10 +180,11 @@ Parser::ExprPtr Parser::parseExpression() {
 Parser::ExprPtr Parser::parseTerm() {
     auto expr = parseFactor();
 
-    while (match(TokenType::STAR)) {
+    while (match(TokenType::STAR) || match(TokenType::SLASH)) {
+        BinaryOp::Op op = (m_previous.type == TokenType::STAR) ? BinaryOp::MUL : BinaryOp::DIV;
         int line = m_previous.line;
         auto right = parseFactor();
-        expr = std::make_unique<BinaryOp>(BinaryOp::MUL, std::move(expr), std::move(right), line);
+        expr = std::make_unique<BinaryOp>(op, std::move(expr), std::move(right), line);
     }
 
     return expr;
@@ -194,6 +197,22 @@ Parser::ExprPtr Parser::parseFactor() {
 
     if (match(TokenType::IDENTIFIER)) {
         return std::make_unique<Identifier>(m_previous.lexeme);
+    }
+
+    if (match(TokenType::TRANSPOSE)) {
+        int line = m_previous.line;
+        expect(TokenType::LPAREN);
+        auto expr = parseExpression();
+        expect(TokenType::RPAREN);
+        return std::make_unique<TransposeExpr>(std::move(expr), line);
+    }
+
+    if (match(TokenType::DET)) {
+        int line = m_previous.line;
+        expect(TokenType::LPAREN);
+        auto expr = parseExpression();
+        expect(TokenType::RPAREN);
+        return std::make_unique<DetExpr>(std::move(expr), line);
     }
 
     if (match(TokenType::LPAREN)) {

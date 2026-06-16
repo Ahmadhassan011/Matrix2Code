@@ -23,7 +23,7 @@ void Optimizer::foldConstants(IRProgram& program) {
     for (size_t i = 0; i < instrs.size(); i++) {
         auto& instr = instrs[i];
 
-        if (instr.op != IROp::ADD && instr.op != IROp::SUB && instr.op != IROp::MUL) {
+        if (instr.op != IROp::ADD && instr.op != IROp::SUB && instr.op != IROp::MUL && instr.op != IROp::DIV) {
             continue;
         }
 
@@ -35,6 +35,10 @@ void Optimizer::foldConstants(IRProgram& program) {
             continue;
         }
 
+        if (instr.op == IROp::DIV && std::stoi(instr.src2) == 0) {
+            continue;
+        }
+
         int a = std::stoi(instr.src1);
         int b = std::stoi(instr.src2);
         int result = 0;
@@ -43,6 +47,7 @@ void Optimizer::foldConstants(IRProgram& program) {
             case IROp::ADD: result = a + b; break;
             case IROp::SUB: result = a - b; break;
             case IROp::MUL: result = a * b; break;
+            case IROp::DIV: result = a / b; break;
             default: break;
         }
 
@@ -84,6 +89,11 @@ void Optimizer::strengthReduce(IRProgram& program) {
                     instrs[i] = {IROp::COPY, instr.dst, "0", "", 0, 0, {}};
                 } else if (src1IsNum && std::stoi(instr.src1) == 0) {
                     instrs[i] = {IROp::COPY, instr.dst, "0", "", 0, 0, {}};
+                }
+                break;
+            case IROp::DIV:
+                if (src2IsNum && std::stoi(instr.src2) == 1) {
+                    instrs[i] = {IROp::COPY, instr.dst, instr.src1, "", 0, 0, {}};
                 }
                 break;
             default:

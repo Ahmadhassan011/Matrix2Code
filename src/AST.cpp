@@ -20,6 +20,7 @@ void BinaryOp::print(int indent) const {
         case ADD: opStr = "+"; break;
         case SUB: opStr = "-"; break;
         case MUL: opStr = "*"; break;
+        case DIV: opStr = "/"; break;
     }
     printIndent(indent);
     std::cerr << "BinaryOp: " << opStr << "\n";
@@ -50,6 +51,18 @@ void MatrixDecl::print(int indent) const {
 void AssignStmt::print(int indent) const {
     printIndent(indent);
     std::cerr << "Assign: " << m_name << "\n";
+    if (m_expr) m_expr->print(indent + 1);
+}
+
+void TransposeExpr::print(int indent) const {
+    printIndent(indent);
+    std::cerr << "Transpose\n";
+    if (m_expr) m_expr->print(indent + 1);
+}
+
+void DetExpr::print(int indent) const {
+    printIndent(indent);
+    std::cerr << "Det\n";
     if (m_expr) m_expr->print(indent + 1);
 }
 
