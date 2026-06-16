@@ -62,41 +62,9 @@ int main() {
 - **Zero external parser tools** — hand-written C++, no Flex/Bison dependency
 - **Cramer's Rule ready** — includes `det()` and `transpose()` for solving linear systems (see `examples/cramer_2x2.matrix`)
 
-## How it works
+## Compiler Pipeline
 
-```
-Source (.matrix)
-     │
-     ▼
-┌─────────────┐
-│   Lexer     │  Char-by-char → token stream
-└──────┬──────┘
-       ▼
-┌─────────────┐
-│   Parser    │  Recursive-descent → AST
-└──────┬──────┘
-       ▼
-┌─────────────┐
-│  Semantic   │  Type & dimension checks, constant folding
-│  Analyzer   │
-└──────┬──────┘
-       ▼
-┌─────────────┐
-│  IR Gen     │  Three-address code (quadruples)
-└──────┬──────┘
-       ▼
-┌─────────────┐
-│ Optimizer   │  Constant folding, strength reduction
-└──────┬──────┘
-       ▼
-┌─────────────┐
-│  Code Gen   │  Emits C99 code with loops
-└──────┬──────┘
-       ▼
-┌─────────────┐
-│  GCC + Run  │  Compile & execute
-└─────────────┘
-```
+![Matrix2Code end-to-end system workflow](images/diagram.png)
 
 ## Prerequisites
 
